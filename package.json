@@ -1,0 +1,15 @@
+{
+  "name": "lifetimes-repo",
+  "description": "Monorepo for lifetimes packages",
+  "license": "MIT",
+  "private": true,
+  "author": "Marcus Armstrong <marcusdarmstrong@gmail.com>",
+  "scripts": {
+    "prepare": "npm run build -ws"
+  },
+  "workspaces": [
+    "./packages/lifetimes",
+    "./packages/eslint-plugin",
+    "./packages/demo"
+  ]
+}
