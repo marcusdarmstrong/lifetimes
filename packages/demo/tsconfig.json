@@ -1,0 +1,16 @@
+{
+  "extends": ["@tsconfig/strictest", "@tsconfig/node16"],
+  "include": ["*.ts"],
+  "compilerOptions": {
+    "outDir": "dist",
+    "composite": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "references": [
+    {
+      "path": "../lifetimes"
+    }
+  ]
+}
