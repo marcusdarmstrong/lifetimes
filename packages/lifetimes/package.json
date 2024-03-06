@@ -25,7 +25,7 @@
     }
   },
   "scripts": {
-    "build": "tsc && rollup -c && node --test dist"
+    "build": "tsc && rollup -c && node --test dist/lifetimes.test.js"
   },
   "files": [
     "dist/lifetimes.d.ts",
