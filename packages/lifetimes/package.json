@@ -1,6 +1,6 @@
 {
   "name": "lifetimes",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A utility for explicit specification and enforcement of module scope variable lifetimes",
   "license": "MIT",
   "author": "Marcus Armstrong <marcusdarmstrong@gmail.com>",
@@ -32,7 +32,8 @@
     "dist/lifetimes.node.js",
     "dist/lifetimes.node.js.map",
     "dist/lifetimes.browser.js",
-    "dist/lifetimes.browser.js.map"
+    "dist/lifetimes.browser.js.map",
+    "README.md"
   ],
   "devDependencies": {
     "@rollup/plugin-swc": "0.3.0",

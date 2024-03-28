@@ -1,6 +1,6 @@
 {
   "name": "@lifetimes/eslint-plugin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Marcus Armstrong <marcusdarmstrong@gmail.com>",
   "homepage": "https://github.com/marcusdarmstrong/lifetimes",
   "repository": "github:marcusdarmstrong/lifetimes",
@@ -15,7 +15,8 @@
   "files": [
     "package.json",
     "dist/index.js",
-    "dist/index.js.map"
+    "dist/index.js.map",
+    "README.md"
   ],
   "dependencies": {
     "@typescript-eslint/utils": ">=6.8.0"

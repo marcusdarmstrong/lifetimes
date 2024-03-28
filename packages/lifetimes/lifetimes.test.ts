@@ -12,29 +12,43 @@ import {
 
 test("readOnly", async (t) => {
   await t.test("objects", () => {
-    const obj = readOnly(() => ({ foo: true }));
+    const obj = readOnly(() => ({ foo: true, bar: { nested: true } }));
     assert(obj.foo, "can be read");
+    assert(obj.bar.nested, "nested properties can be read");
     assert.throws(() => {
       // @ts-expect-error: This is readonly, of course.
-      obj.bar = false;
+      obj.baz = false;
     }, "cannot have new properties added");
     assert.throws(() => {
       // @ts-expect-error: This is readonly, of course.
       obj.foo = false;
     }, "cannot have properties redefined");
+    assert.throws(() => {
+      // @ts-expect-error: This is readonly, of course.
+      obj.bar.nested = false;
+    }, "cannot have nested properties redefined");
   });
 
   await t.test("arrays", () => {
-    const arr = readOnly(() => [1, 2, 3, 4, 5]);
+    const arr = readOnly(() => [1, 2, 3, 4, 5, [6, 7]] as const);
     assert(arr[0], "can be read");
+    assert(arr[5][0], "can read nested values");
     assert.throws(() => {
       // @ts-expect-error: This is readonly, of course.
-      arr.push(6);
+      arr.push(8);
     }, "cannot have new values added");
     assert.throws(() => {
       // @ts-expect-error: This is readonly, of course.
       arr[0] = -1;
     }, "cannot have values redefined");
+    assert.throws(() => {
+      // @ts-expect-error: This is readonly, of course.
+      arr[5].push(9);
+    }, "cannot have new values added to nested values");
+    assert.throws(() => {
+      // @ts-expect-error: This is readonly, of course.
+      arr[5][0] = -2;
+    }, "cannot have nested values redefined");
   });
 
   await t.test("maps", () => {
