@@ -43,7 +43,12 @@ function immutable<T>(value: T): T {
   }
 
   // This effectively prevents mutation of arrays and objects.
-  Object.freeze(value);
+  Object.preventExtensions(value);
+  Reflect.ownKeys(value).forEach((property) => {
+    Object.defineProperty(value, property, {
+      writable: false,
+    });
+  });
 
   return new Proxy(value, {
     get(target, property, receiver) {
@@ -93,12 +98,16 @@ export type ReadonlyDate = Readonly<
   >
 >;
 
+type Immutable<T> = {
+  readonly [K in keyof T]: Immutable<T[K]>;
+};
+
 export function readOnly(initializer: () => Date): ReadonlyDate;
 export function readOnly<T>(initializer: () => Set<T>): ReadonlySet<T>;
 export function readOnly<K, V>(initializer: () => Map<K, V>): ReadonlyMap<K, V>;
 export function readOnly<T>(
   initializer: () => T extends Promise<unknown> ? never : T,
-): Readonly<T>;
+): Readonly<Immutable<T>>;
 
 /**
  * Mark the lifetime of a provided block of code as "forever" with safety
