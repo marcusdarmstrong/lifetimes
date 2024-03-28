@@ -22,13 +22,13 @@ Unfortunately the static analysis approach in use here makes it challenging to d
 
 # Philosophy
 
-`lifetimes` seeks to _aid_ in the software development and code review proccesses. The goal isn't to guarantee correctness, but rather to *assist* developers in thinking about how long values they create in module scope should live and enable code revewers to more easily identify and evaluate authors' intent. 
+`lifetimes` seeks to _aid_ in the software development and code review proccesses. The goal isn't to guarantee correctness, but rather to *assist* developers in thinking about how long values they create in module scope should live and enable code reviewers to more easily identify and evaluate authors' intent. 
 
 ## Opinions
 
 This is undoubtedly an opinionated library, so it's important to be explicit about those opinions:
 - Mutable module state is bad
-- Caching is better handled in non-javascript application layers
+- Caching is better handled in non-javascript layers
 - Lazy-loaded server-side stores are bad
 
 ## Conclusions
