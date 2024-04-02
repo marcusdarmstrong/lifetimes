@@ -98,9 +98,11 @@ export type ReadonlyDate = Readonly<
   >
 >;
 
-type Immutable<T> = {
-  readonly [K in keyof T]: Immutable<T[K]>;
-};
+type Immutable<T> = T extends (...args: infer Ks) => infer V
+  ? (...args: Ks) => Immutable<V>
+  : {
+      readonly [K in keyof T]: Immutable<T[K]>;
+    };
 
 export function readOnly(initializer: () => Date): ReadonlyDate;
 export function readOnly<T>(initializer: () => Set<T>): ReadonlySet<T>;
