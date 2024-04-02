@@ -12,7 +12,16 @@ import {
 
 test("readOnly", async (t) => {
   await t.test("objects", () => {
-    const obj = readOnly(() => ({ foo: true, bar: { nested: true } }));
+    type Obj = {
+      foo: boolean;
+      bar: { nested: boolean };
+      method(foo: string): void;
+    };
+    const obj = readOnly(() => ({
+      foo: true,
+      bar: { nested: true },
+      method(_foo: string) {},
+    })) satisfies Obj;
     assert(obj.foo, "can be read");
     assert(obj.bar.nested, "nested properties can be read");
     assert.throws(() => {
