@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.0] - 2024-04-09
+
+- MAJOR Don't transitively apply immutability to results of method calls of immutable values
+- MAJOR Exempt object and array literals from wrapping if they're directly passed to an allowlisted function
+- MAJOR Remove RequestLocalProxy mechanism
+
 ## [1.0.2] - 2024-04-02
 
 - PATCH Fix type checking/inference of `Immutable` functions
