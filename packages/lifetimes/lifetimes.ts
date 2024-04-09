@@ -70,10 +70,6 @@ function immutable<T>(value: T): T {
           : returnValue,
       );
     },
-    apply(target, thisValue, args) {
-      // @ts-expect-error: I have no guarantees this is a callable object.
-      return immutable(Reflect.apply(target, thisValue, args));
-    },
   });
 }
 
@@ -99,7 +95,7 @@ export type ReadonlyDate = Readonly<
 >;
 
 type Immutable<T> = T extends (...args: infer Ks) => infer V
-  ? (...args: Ks) => Immutable<V>
+  ? (...args: Ks) => V
   : {
       readonly [K in keyof T]: Immutable<T[K]>;
     };
