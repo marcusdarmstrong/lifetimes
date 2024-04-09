@@ -99,6 +99,30 @@ function callableHook(
   }
 }
 
+// We specifically exempt objects and arrays that are declared inline as parameters of a function
+// call in module scope. This allows more ergonomic usages of things like react's `createContext` in
+// cases where a provided object literal, while technically mutable and in module scope, never has a
+// reference in module scope, and thus, can't practically be mutated in an unsafe way.
+function isInlineArgument(node: TSESTree.Node) {
+  if (
+    node.parent &&
+    (node.parent.type === "CallExpression" ||
+      node.parent.type === "NewExpression") &&
+    node.parent.callee !== node
+  ) {
+    return true;
+  }
+  if (
+    node.parent &&
+    (node.parent.type === "ObjectExpression" ||
+      node.parent.type === "ArrayExpression" ||
+      (node.parent.type === "Property" && node.parent.value === node))
+  ) {
+    return isInlineArgument(node.parent);
+  }
+  return false;
+}
+
 export default ESLintUtils.RuleCreator.withoutDocs({
   meta: {
     messages: MESSAGES,
@@ -148,7 +172,11 @@ export default ESLintUtils.RuleCreator.withoutDocs({
         );
       },
       ObjectExpression(node: TSESTree.ObjectExpression) {
-        if (!allowMutableDeclarations && context.getScope().type === "module") {
+        if (
+          !allowMutableDeclarations &&
+          context.getScope().type === "module" &&
+          !isInlineArgument(node)
+        ) {
           context.report({
             node,
             messageId: "mayNotCreateObject",
@@ -156,7 +184,11 @@ export default ESLintUtils.RuleCreator.withoutDocs({
         }
       },
       ArrayExpression(node: TSESTree.ArrayExpression) {
-        if (!allowMutableDeclarations && context.getScope().type === "module") {
+        if (
+          !allowMutableDeclarations &&
+          context.getScope().type === "module" &&
+          !isInlineArgument(node)
+        ) {
           context.report({
             node,
             messageId: "mayNotCreateArray",

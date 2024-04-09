@@ -4,7 +4,6 @@ import { test } from "node:test";
 import {
   readOnly,
   requestLocal,
-  requestLocalProxy,
   unsafeSingleton,
   unsafeGlobalEffect,
   runInRequestScope,
@@ -121,42 +120,6 @@ test("requestLocal", () => {
     );
     counter.get().current++;
     assert(counter.get().current === 1, "is modified per request scope");
-  });
-});
-
-test("requestLocalProxy", () => {
-  assert.throws(() => {
-    // @ts-expect-error: does not accept primitives.
-    requestLocalProxy(() => 0);
-  }, "cannot wrap a primitive");
-
-  assert(
-    typeof requestLocalProxy(
-      () =>
-        function () {
-          return 0;
-        },
-    ) === "function",
-    "can proxy functions",
-  );
-
-  const counter = requestLocalProxy(() => ({ current: 0 }));
-
-  assert.throws(
-    () => counter.current,
-    "cannot be accessed outside of a request",
-  );
-
-  runInRequestScope(() => {
-    assert(counter.current === 0, "initialized via provided constructor");
-    counter.current++;
-    assert(counter.current === 1, "can be modified");
-  });
-
-  runInRequestScope(() => {
-    assert(counter.current === 0, "is reinitialized for each request scope");
-    counter.current++;
-    assert(counter.current === 1, "is modified per request scope");
   });
 });
 

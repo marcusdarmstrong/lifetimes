@@ -57,6 +57,16 @@ new RuleTester().run("module-scope-allowlist", moduleScopeAllowlist, {
       parserOptions,
       options: [{ allowedWrappers: { lifetimes: ["default"] } }],
     },
+    {
+      code: "import ro from 'lifetimes'; ro(() => foo());",
+      parserOptions,
+      options: [{ allowedWrappers: { lifetimes: ["default"] } }],
+    },
+    {
+      code: "import ro from 'lifetimes'; ro({ foo: { bar: [1, 2, 3] }});",
+      parserOptions,
+      options: [{ allowedWrappers: { lifetimes: ["default"] } }],
+    },
   ],
   invalid: [
     {
