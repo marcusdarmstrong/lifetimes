@@ -67,16 +67,6 @@ const perRequestId = requestLocal(() => uuid());
 perRequestId.get();
 ```
 
-`requestLocalProxy`: By wrapping a `RequestLocal` in a Proxy we can provide an easier migration path for code that's already written.
-
-```
-import { requestLocalProxy } from 'lifetimes';
-
-const perRequestId = requestLocalProxy(() => ({ current: uuid() });
-...
-perRequestId.current; 
-```
-
 `unsafeSingleton`: A simple passthrough that exists to specifically declare that singleton behavior is desired.
 
 ```
