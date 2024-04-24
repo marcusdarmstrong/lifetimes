@@ -1,6 +1,6 @@
 {
   "name": "lifetimes",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A utility for explicit specification and enforcement of module scope variable lifetimes",
   "license": "MIT",
   "author": "Marcus Armstrong <marcusdarmstrong@gmail.com>",

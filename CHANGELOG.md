@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.1.0] - 2024-04-24
+
+- MINOR: Accept inline non-function wrapped parameters to `readOnly`
+- MINOR: Avoid using proxies in `readOnly` for non-complex values
+- MINOR: Eagerly mark objects and arrays as immutable in `readOnly`
+
 ## [2.0.0] - 2024-04-09
 
 - MAJOR Don't transitively apply immutability to results of method calls of immutable values

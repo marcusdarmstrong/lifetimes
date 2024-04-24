@@ -54,7 +54,8 @@ The second rule is where the complexity comes in: obviously there need to be exc
 ```
 import { readOnly } from 'lifetimes';
 
-const RETRY_TIMEOUTS = readOnly(() => [50, 100, 250, 500, 1000]);
+const RETRY_TIMEOUTS = readOnly([50, 100, 250, 500, 1000]);
+const VALID_INPUTS = readOnly(() => new Set(['foo', 'bar']));
 ```
 
 `requestLocal`: Call .get() to access the current instance of the value
