@@ -26,11 +26,10 @@ const MUTABLE_DATE_METHODS = new Set<string | symbol>([
   "setYear",
 ]);
 
-function immutable<T>(value: T): T {
+function immutableProxy<T>(value: T): T {
   if (
     (typeof value !== "object" && typeof value !== "function") ||
-    value === null ||
-    value === undefined
+    value === null
   ) {
     // Primitive values are implicitly immutable.
     return value;
@@ -64,13 +63,36 @@ function immutable<T>(value: T): T {
       }
 
       const returnValue = Reflect.get(target, property, receiver);
-      return immutable(
+      return makeImmutable(
         typeof returnValue === "function"
           ? returnValue.bind(target)
           : returnValue,
       );
     },
   });
+}
+
+function makeImmutable<T>(value: T): T {
+  if (
+    value instanceof Promise ||
+    value instanceof Set ||
+    value instanceof Map ||
+    value instanceof Date
+  ) {
+    return immutableProxy(value);
+  }
+
+  if (typeof value === "object" && value !== null) {
+    Object.preventExtensions(value);
+    Reflect.ownKeys(value).forEach((property) => {
+      Object.defineProperty(value, property, {
+        writable: false,
+      });
+      makeImmutable(value[property as keyof typeof value]);
+    });
+  }
+
+  return value;
 }
 
 export type ReadonlyDate = Readonly<
@@ -94,18 +116,32 @@ export type ReadonlyDate = Readonly<
   >
 >;
 
-type Immutable<T> = T extends (...args: infer Ks) => infer V
+export type Immutable<T> = T extends (...args: infer Ks) => infer V
   ? (...args: Ks) => V
-  : {
-      readonly [K in keyof T]: Immutable<T[K]>;
-    };
+  : T extends Date
+    ? ReadonlyDate
+    : T extends Set<infer S>
+      ? ReadonlySet<Immutable<S>>
+      : T extends Map<infer K, infer V>
+        ? ReadonlyMap<Immutable<K>, Immutable<V>>
+        : {
+            readonly [K in keyof T]: Immutable<T[K]>;
+          };
 
-export function readOnly(initializer: () => Date): ReadonlyDate;
-export function readOnly<T>(initializer: () => Set<T>): ReadonlySet<T>;
-export function readOnly<K, V>(initializer: () => Map<K, V>): ReadonlyMap<K, V>;
+function isCallable(value: unknown): value is (...args: unknown[]) => unknown {
+  return typeof value === "function";
+}
+
 export function readOnly<T>(
   initializer: () => T extends Promise<unknown> ? never : T,
-): Readonly<Immutable<T>>;
+): Immutable<T>;
+export function readOnly<T>(
+  initializer: T extends (...args: unknown[]) => unknown
+    ? never
+    : T extends Promise<unknown>
+      ? never
+      : T,
+): Immutable<T>;
 
 /**
  * Mark the lifetime of a provided block of code as "forever" with safety
@@ -115,8 +151,11 @@ export function readOnly<T>(
  * @return The provided callback's return value, frozen, and wrapped in a
  *  readOnly-enforcing Proxy.
  */
-export function readOnly<T>(initializer: () => T): Readonly<T> {
-  return immutable(initializer());
+export function readOnly<T>(initializer: T | (() => T)): T {
+  if (isCallable(initializer)) {
+    return makeImmutable(initializer());
+  }
+  return makeImmutable(initializer);
 }
 
 type Scope = Map<symbol, unknown>;

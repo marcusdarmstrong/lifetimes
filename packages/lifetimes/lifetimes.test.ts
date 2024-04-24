@@ -37,6 +37,87 @@ test("readOnly", async (t) => {
     }, "cannot have nested properties redefined");
   });
 
+  await t.test("inline readOnly", () => {
+    type Obj = {
+      foo: boolean;
+      bar: { nested: boolean };
+      method(foo: string): void;
+    };
+    const obj = readOnly({
+      foo: true,
+      bar: { nested: true },
+      method(_foo: string) {},
+    }) satisfies Obj;
+    assert(obj.foo, "can be read");
+    assert(obj.bar.nested, "nested properties can be read");
+    assert.throws(() => {
+      // @ts-expect-error: This is readonly, of course.
+      obj.baz = false;
+    }, "cannot have new properties added");
+    assert.throws(() => {
+      // @ts-expect-error: This is readonly, of course.
+      obj.foo = false;
+    }, "cannot have properties redefined");
+    assert.throws(() => {
+      // @ts-expect-error: This is readonly, of course.
+      obj.bar.nested = false;
+    }, "cannot have nested properties redefined");
+
+    assert.throws(() => {
+      // @ts-expect-error: Promises are invalid input.
+      readOnly(Promise.resolve());
+    }, "cannot accept Promises");
+
+    const arr = readOnly([1, 2, 3, 4, 5, [6, 7]] as const);
+    assert(arr[0], "can be read");
+    assert(arr[5][0], "can read nested values");
+    assert.throws(() => {
+      // @ts-expect-error: This is readonly, of course.
+      arr.push(8);
+    }, "cannot have new values added");
+    assert.throws(() => {
+      // @ts-expect-error: This is readonly, of course.
+      arr[0] = -1;
+    }, "cannot have values redefined");
+    assert.throws(() => {
+      // @ts-expect-error: This is readonly, of course.
+      arr[5].push(9);
+    }, "cannot have new values added to nested values");
+    assert.throws(() => {
+      // @ts-expect-error: This is readonly, of course.
+      arr[5][0] = -2;
+    }, "cannot have nested values redefined");
+
+    const map = readOnly(new Map([["foo", "bar"]]));
+    assert(map.get("foo"), "can be read");
+    assert.throws(() => {
+      // @ts-expect-error: This is readonly, of course.
+      map.set("bar", "foo");
+    }, "cannot have new properties added");
+    assert.throws(() => {
+      // @ts-expect-error: This is readonly, of course.
+      map.set("foo", "foo");
+    }, "cannot have properties redefined");
+
+    const set = readOnly(new Set(["hello", "world"]));
+    assert(set.has("hello"), "can be read");
+    assert.throws(() => {
+      // @ts-expect-error: This is readonly, of course.
+      set.add("foo");
+    }, "cannot have new values added");
+    assert.throws(() => {
+      // @ts-expect-error: This is readonly, of course.
+      set.delete("world");
+    }, "cannot have values removed");
+
+    const date = readOnly(new Date());
+    assert(date.getTime(), "can be read");
+    assert.throws(() => {
+      // @ts-expect-error: This is readonly, of course.
+      date.setMonth(0);
+    }, "cannot be modified");
+  });
+
   await t.test("arrays", () => {
     const arr = readOnly(() => [1, 2, 3, 4, 5, [6, 7]] as const);
     assert(arr[0], "can be read");
