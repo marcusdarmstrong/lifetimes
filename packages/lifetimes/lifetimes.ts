@@ -139,18 +139,6 @@ function isCallable<T>(
   return typeof value === "function";
 }
 
-/*
-export function readOnly<T>(
-  initializer: () => T extends Promise<unknown> ? never : T,
-): Immutable<T>;
-export function readOnly<T>(
-  initializer: T extends (...args: unknown[]) => unknown
-    ? never
-    : T extends Promise<unknown>
-      ? never
-      : T,
-): Immutable<T>; */
-
 type ClosureInitializer<T> = () => T extends Promise<unknown> ? never : T;
 type InlineInitializer<T> = T extends (...args: unknown[]) => unknown
   ? never
