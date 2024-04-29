@@ -1,6 +1,6 @@
 {
   "name": "lifetimes",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "A utility for explicit specification and enforcement of module scope variable lifetimes",
   "license": "MIT",
   "author": "Marcus Armstrong <marcusdarmstrong@gmail.com>",
@@ -43,11 +43,13 @@
     "@tsconfig/strictest": "2.0.3",
     "@tsconfig/node16": "16.1.1",
     "@types/node": "20.11.24",
+    "@types/react": "18.2.79",
     "@typescript-eslint/eslint-plugin": "7.1.1",
     "@typescript-eslint/parser": "7.1.1",
     "eslint": "8.57.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-prettier": "5.1.3",
+    "react": "18.2.0",
     "rollup": "4.12.0",
     "typescript": "5.3.3"
   },
