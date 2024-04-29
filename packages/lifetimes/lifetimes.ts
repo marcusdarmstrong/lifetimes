@@ -1,6 +1,8 @@
 import type { AsyncLocalStorage } from "node:async_hooks";
 import { createScope } from "#scope";
 
+import type { ReactElement } from "react";
+
 const MUTABLE_SET_METHODS = new Set<string | symbol>([
   "add",
   "delete",
@@ -26,13 +28,22 @@ const MUTABLE_DATE_METHODS = new Set<string | symbol>([
   "setYear",
 ]);
 
-function immutableProxy<T>(value: T): T {
+function isReactObject(value: unknown): boolean {
+  return (
+    (typeof value === "object" || typeof value === "function") &&
+    value !== null &&
+    "$$typeof" in value
+  );
+}
+
+function immutableProxy<T>(value: T): Immutable<T> {
   if (
+    isReactObject(value) ||
     (typeof value !== "object" && typeof value !== "function") ||
     value === null
   ) {
     // Primitive values are implicitly immutable.
-    return value;
+    return value as Immutable<T>;
   }
 
   if (value instanceof Promise) {
@@ -41,13 +52,7 @@ function immutableProxy<T>(value: T): T {
     );
   }
 
-  // This effectively prevents mutation of arrays and objects.
   Object.preventExtensions(value);
-  Reflect.ownKeys(value).forEach((property) => {
-    Object.defineProperty(value, property, {
-      writable: false,
-    });
-  });
 
   return new Proxy(value, {
     get(target, property, receiver) {
@@ -69,30 +74,28 @@ function immutableProxy<T>(value: T): T {
           : returnValue,
       );
     },
-  });
+  }) as Immutable<T>;
 }
 
-function makeImmutable<T>(value: T): T {
+function makeImmutable<T>(value: T): Immutable<T> {
   if (
     value instanceof Promise ||
     value instanceof Set ||
     value instanceof Map ||
-    value instanceof Date
+    value instanceof Date ||
+    isReactObject(value)
   ) {
     return immutableProxy(value);
   }
 
   if (typeof value === "object" && value !== null) {
-    Object.preventExtensions(value);
     Reflect.ownKeys(value).forEach((property) => {
-      Object.defineProperty(value, property, {
-        writable: false,
-      });
       makeImmutable(value[property as keyof typeof value]);
     });
+    Object.freeze(value);
   }
 
-  return value;
+  return value as Immutable<T>;
 }
 
 export type ReadonlyDate = Readonly<
@@ -124,24 +127,26 @@ export type Immutable<T> = T extends (...args: infer Ks) => infer V
       ? ReadonlySet<Immutable<S>>
       : T extends Map<infer K, infer V>
         ? ReadonlyMap<Immutable<K>, Immutable<V>>
-        : {
-            readonly [K in keyof T]: Immutable<T[K]>;
-          };
+        : T extends ReactElement<unknown>
+          ? T
+          : {
+              readonly [K in keyof T]: Immutable<T[K]>;
+            };
 
-function isCallable(value: unknown): value is (...args: unknown[]) => unknown {
+function isCallable<T>(
+  value: ReadOnlyInitializer<T>,
+): value is ClosureInitializer<T> {
   return typeof value === "function";
 }
 
-export function readOnly<T>(
-  initializer: () => T extends Promise<unknown> ? never : T,
-): Immutable<T>;
-export function readOnly<T>(
-  initializer: T extends (...args: unknown[]) => unknown
+type ClosureInitializer<T> = () => T extends Promise<unknown> ? never : T;
+type InlineInitializer<T> = T extends (...args: unknown[]) => unknown
+  ? never
+  : T extends Promise<unknown>
     ? never
-    : T extends Promise<unknown>
-      ? never
-      : T,
-): Immutable<T>;
+    : T;
+
+type ReadOnlyInitializer<T> = ClosureInitializer<T> | InlineInitializer<T>;
 
 /**
  * Mark the lifetime of a provided block of code as "forever" with safety
@@ -151,7 +156,7 @@ export function readOnly<T>(
  * @return The provided callback's return value, frozen, and wrapped in a
  *  readOnly-enforcing Proxy.
  */
-export function readOnly<T>(initializer: T | (() => T)): T {
+export function readOnly<T>(initializer: ReadOnlyInitializer<T>): Immutable<T> {
   if (isCallable(initializer)) {
     return makeImmutable(initializer());
   }
