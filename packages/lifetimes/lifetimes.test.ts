@@ -1,6 +1,8 @@
 import assert from "node:assert";
 import { test } from "node:test";
 
+import { lazy, createElement } from "react";
+
 import {
   readOnly,
   requestLocal,
@@ -116,6 +118,41 @@ test("readOnly", async (t) => {
       // @ts-expect-error: This is readonly, of course.
       date.setMonth(0);
     }, "cannot be modified");
+  });
+
+  await t.test("ignores lazy react components", () => {
+    function LazyComponent() {
+      return createElement("span");
+    }
+
+    const lazyRenderable = readOnly(() =>
+      lazy(() => Promise.resolve({ default: LazyComponent })),
+    );
+
+    // Prototype is the only TS-writable property defined on this type.
+    assert(
+      (lazyRenderable.prototype = Function),
+      "lazy components can be written",
+    );
+
+    // This is a typescript assertion.
+    createElement(lazyRenderable);
+  });
+
+  await t.test("ignores react elements", () => {
+    const elm = readOnly(createElement("div"));
+    // @ts-expect-error: React internally mutates this property. We need to assert that we haven't prevented it from doing so.
+    assert((elm._store.foo = "bar"), "react elements can be written");
+
+    function Component() {
+      return "hello world";
+    }
+
+    // These are typescript assertions.
+    createElement(readOnly(() => Component));
+
+    // @ts-expect-error: Components, as callables, need to be passed to `readOnly` with a closure wrapper.
+    readOnly<typeof Component>(Component);
   });
 
   await t.test("arrays", () => {

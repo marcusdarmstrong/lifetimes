@@ -44,5 +44,5 @@ export default [{
   output: output("test"),
   plugins: plugins("node"),
   // plugin-node-resolve uses an out-of-date builtins list.
-  external: ["node:test"],
+  external: ["node:test", "react"],
 }];
