@@ -14,18 +14,22 @@ const MUTABLE_MAP_METHODS = new Set<string | symbol>([
   "clear",
 ]);
 const MUTABLE_DATE_METHODS = new Set<string | symbol>([
-  "setDate",
-  "setFullYear",
-  "setHours",
-  "setMilliseconds",
-  "setMinutes",
-  "setMonth",
-  "setSeconds",
   "setTime",
-  "setUTCDate",
-  "setUTCFullYear",
-  "setUTCHours",
   "setYear",
+  "setMilliseconds",
+  "setUTCMilliseconds",
+  "setSeconds",
+  "setUTCSeconds",
+  "setMinutes",
+  "setUTCMinutes",
+  "setHours",
+  "setUTCHours",
+  "setDate",
+  "setUTCDate",
+  "setMonth",
+  "setUTCMonth",
+  "setFullYear",
+  "setUTCFullYear",
 ]);
 
 function isReactObject(value: unknown): boolean {
@@ -102,6 +106,7 @@ export type ReadonlyDate = Readonly<
   Omit<
     Date,
     | "setTime"
+    | "setYear"
     | "setMilliseconds"
     | "setUTCMilliseconds"
     | "setSeconds"
@@ -123,15 +128,17 @@ export type Immutable<T> = T extends (...args: infer Ks) => infer V
   ? (...args: Ks) => V
   : T extends Date
     ? ReadonlyDate
-    : T extends Set<infer S>
-      ? ReadonlySet<Immutable<S>>
-      : T extends Map<infer K, infer V>
-        ? ReadonlyMap<Immutable<K>, Immutable<V>>
-        : T extends ReactElement<unknown>
-          ? T
-          : {
-              readonly [K in keyof T]: Immutable<T[K]>;
-            };
+    : T extends ReadonlyDate
+      ? ReadonlyDate
+      : T extends Set<infer S>
+        ? ReadonlySet<Immutable<S>>
+        : T extends Map<infer K, infer V>
+          ? ReadonlyMap<Immutable<K>, Immutable<V>>
+          : T extends ReactElement<unknown>
+            ? T
+            : {
+                readonly [K in keyof T]: Immutable<T[K]>;
+              };
 
 function isCallable<T>(
   value: ReadOnlyInitializer<T>,

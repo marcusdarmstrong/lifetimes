@@ -4,6 +4,7 @@ import { test } from "node:test";
 import { lazy, createElement } from "react";
 
 import {
+  type ReadonlyDate,
   readOnly,
   requestLocal,
   unsafeSingleton,
@@ -210,6 +211,8 @@ test("readOnly", async (t) => {
       // @ts-expect-error: This is readonly, of course.
       date.setMonth(0);
     }, "cannot be modified");
+
+    readOnly(() => date) satisfies ReadonlyDate;
   });
 
   await t.test("promises", () => {
