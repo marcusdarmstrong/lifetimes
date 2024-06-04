@@ -116,6 +116,7 @@ function isInlineArgument(node: TSESTree.Node) {
     node.parent &&
     (node.parent.type === "ObjectExpression" ||
       node.parent.type === "ArrayExpression" ||
+      node.parent.type === "TSAsExpression" ||
       (node.parent.type === "Property" && node.parent.value === node))
   ) {
     return isInlineArgument(node.parent);
