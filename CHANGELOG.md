@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.4.0] - 2024-06-06
+
+- MINOR: Add support const inference on values passed to `readOnly`
+
 ## [2.3.0] - 2024-06-04
 
 - MINOR: Add support for `as` expressions in inline arguments to `readOnly`
