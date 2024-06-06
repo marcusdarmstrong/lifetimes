@@ -13,6 +13,12 @@ import {
 } from "./lifetimes.ts";
 
 test("readOnly", async (t) => {
+  t.test("const types", () => {
+    type Union = "a" | "b";
+    const a = readOnly("a");
+    a satisfies Union;
+  });
+
   await t.test("objects", () => {
     type Obj = {
       foo: boolean;

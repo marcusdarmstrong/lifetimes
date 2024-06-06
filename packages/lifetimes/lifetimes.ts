@@ -163,7 +163,9 @@ type ReadOnlyInitializer<T> = ClosureInitializer<T> | InlineInitializer<T>;
  * @return The provided callback's return value, frozen, and wrapped in a
  *  readOnly-enforcing Proxy.
  */
-export function readOnly<T>(initializer: ReadOnlyInitializer<T>): Immutable<T> {
+export function readOnly<const T>(
+  initializer: ReadOnlyInitializer<T>,
+): Immutable<T> {
   if (isCallable(initializer)) {
     return makeImmutable(initializer());
   }
