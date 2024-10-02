@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import { test } from "node:test";
 
-import { lazy, createElement } from "react";
+import { lazy, createElement, type ComponentType } from "react";
 
 import {
   type ReadonlyDate,
@@ -46,6 +46,14 @@ test("readOnly", async (t) => {
     }, "cannot have nested properties redefined");
   });
 
+  await t.test("RegExps", () => {
+    const a = readOnly(() => /foo/);
+    assert(a.test("foo"), "can utilize stateless regexps");
+    assert.throws(() => {
+      readOnly(() => /foo/g);
+    }, "throws when given a stateful regexp");
+  });
+
   await t.test("inline readOnly", () => {
     type Obj = {
       foo: boolean;
@@ -54,10 +62,12 @@ test("readOnly", async (t) => {
     };
     const obj = readOnly({
       foo: true,
+      regex: /foo/,
       bar: { nested: true },
       method(_foo: string) {},
     }) satisfies Obj;
     assert(obj.foo, "can be read");
+    assert(obj.regex.test("foo"), "can utilize stateless regexps");
     assert(obj.bar.nested, "nested properties can be read");
     assert.throws(() => {
       // @ts-expect-error: This is readonly, of course.
@@ -77,7 +87,7 @@ test("readOnly", async (t) => {
       readOnly(Promise.resolve());
     }, "cannot accept Promises");
 
-    const arr = readOnly([1, 2, 3, 4, 5, [6, 7]] as const);
+    const arr = readOnly([1, 2, 3, 4, 5, [6, 7]]);
     assert(arr[0], "can be read");
     assert(arr[5][0], "can read nested values");
     assert.throws(() => {
@@ -162,6 +172,16 @@ test("readOnly", async (t) => {
     readOnly<typeof Component>(Component);
   });
 
+  await t.test("ignores react ComponentTypes", () => {
+    // Purely a typescript assertion.
+    function Component() {
+      return "hello world";
+    }
+    readOnly<ComponentType<unknown>>(
+      () => Component,
+    ) satisfies ComponentType<unknown>;
+  });
+
   await t.test("arrays", () => {
     const arr = readOnly(() => [1, 2, 3, 4, 5, [6, 7]] as const);
     assert(arr[0], "can be read");
@@ -182,6 +202,10 @@ test("readOnly", async (t) => {
       // @ts-expect-error: This is readonly, of course.
       arr[5][0] = -2;
     }, "cannot have nested values redefined");
+    assert(arr.length === 6, "can read length");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-empty
+    for (const _item of arr) {
+    }
   });
 
   await t.test("maps", () => {
@@ -195,6 +219,11 @@ test("readOnly", async (t) => {
       // @ts-expect-error: This is readonly, of course.
       map.set("foo", "foo");
     }, "cannot have properties redefined");
+    assert(map.size === 1, "can read size");
+    // Validate that this iteration works.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-empty
+    for (const _item of map.entries()) {
+    }
   });
 
   await t.test("sets", () => {
@@ -208,6 +237,11 @@ test("readOnly", async (t) => {
       // @ts-expect-error: This is readonly, of course.
       set.delete("world");
     }, "cannot have values removed");
+    assert(set.size === 2, "can read size");
+    // Validate that this iteration works.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-empty
+    for (const _item of set.values()) {
+    }
   });
 
   await t.test("dates", () => {
