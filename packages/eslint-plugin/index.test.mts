@@ -91,6 +91,15 @@ new RuleTester({ parser: "@typescript-eslint/parser" }).run(
         ],
       },
       {
+        code: "const a = /foo/g;",
+        parserOptions,
+        errors: [
+          {
+            messageId: "mayNotCreateStatefulRegexp",
+          },
+        ],
+      },
+      {
         code: "var a = true;",
         parserOptions,
         errors: [

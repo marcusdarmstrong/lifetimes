@@ -1,7 +1,7 @@
 import type { AsyncLocalStorage } from "node:async_hooks";
 import { createScope } from "#scope";
 
-import type { ReactElement } from "react";
+import type { ReactElement, ComponentType } from "react";
 
 const MUTABLE_SET_METHODS = new Set<string | symbol>([
   "add",
@@ -59,7 +59,7 @@ function immutableProxy<T>(value: T): Immutable<T> {
   Object.preventExtensions(value);
 
   return new Proxy(value, {
-    get(target, property, receiver) {
+    get(target, property) {
       // This doesn't prevent actually mutating Sets and Maps, as one could apply
       // the prototype on the underlying value, but it should prevent accidental
       // immutability violations fairly well.
@@ -71,7 +71,7 @@ function immutableProxy<T>(value: T): Immutable<T> {
         throw new Error("Invalid operation: this object is readonly");
       }
 
-      const returnValue = Reflect.get(target, property, receiver);
+      const returnValue = Reflect.get(target, property, target);
       return makeImmutable(
         typeof returnValue === "function"
           ? returnValue.bind(target)
@@ -90,6 +90,12 @@ function makeImmutable<T>(value: T): Immutable<T> {
     isReactObject(value)
   ) {
     return immutableProxy(value);
+  }
+
+  if (value instanceof RegExp && (value.global || value.sticky)) {
+    throw new Error(
+      "Cannot make RegExp read-only: global or sticky RegExps are internally stateful.",
+    );
   }
 
   if (typeof value === "object" && value !== null) {
@@ -136,9 +142,11 @@ export type Immutable<T> = T extends (...args: infer Ks) => infer V
           ? ReadonlyMap<Immutable<K>, Immutable<V>>
           : T extends ReactElement<unknown>
             ? T
-            : {
-                readonly [K in keyof T]: Immutable<T[K]>;
-              };
+            : T extends ComponentType<unknown>
+              ? T
+              : {
+                  readonly [K in keyof T]: Immutable<T[K]>;
+                };
 
 function isCallable<T>(
   value: ReadOnlyInitializer<T>,

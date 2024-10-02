@@ -14,6 +14,7 @@ const MESSAGES = {
   mayNotCreateObject: `May not create mutable object in module scope. ${RECOMMENDATION}`,
   mayNotCreateArray: `May not create mutable array in module scope. ${RECOMMENDATION}`,
   mayNotCreateMutableVariable: `May not create mutable variable in module scope. ${RECOMMENDATION}`,
+  mayNotCreateStatefulRegexp: `May not create stateful (global or sticky) RegExp in module scope.`,
 } as const;
 
 type MessageIds = keyof typeof MESSAGES;
@@ -205,6 +206,18 @@ export default ESLintUtils.RuleCreator.withoutDocs({
           context.report({
             node,
             messageId: "mayNotCreateMutableVariable",
+          });
+        }
+      },
+      Literal(node: TSESTree.Literal) {
+        if (
+          context.getScope().type === "module" &&
+          "regex" in node &&
+          (node.regex.flags.includes("y") || node.regex.flags.includes("g"))
+        ) {
+          context.report({
+            node,
+            messageId: "mayNotCreateStatefulRegexp",
           });
         }
       },
