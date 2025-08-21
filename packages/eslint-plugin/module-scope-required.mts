@@ -55,7 +55,9 @@ export default ESLintUtils.RuleCreator.withoutDocs({
               definition.parent.source.value
             ]?.includes(
               definition.node.type === "ImportSpecifier"
-                ? definition.node.imported.name ?? callableName
+                ? (definition.node.imported.type === "Identifier"
+                    ? definition.node.imported.name
+                    : definition.node.imported.value) ?? callableName
                 : callableName,
             )
           ) {

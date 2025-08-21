@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.0.0] - 2025-08-21
+
+- MAJOR: Bump typescript/node ecosystem dependencies
+- PATCH: Fix handling of new TypedArray types for arbitrary @types/node versions
+
 ## [2.6.0] - 2025-08-21
 
 - PATCH: Reject `readOnly<TypedArray>` at initialization/type-check time, vs. runtime failure

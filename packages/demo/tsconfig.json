@@ -1,5 +1,5 @@
 {
-  "extends": ["@tsconfig/strictest", "@tsconfig/node16"],
+  "extends": ["@tsconfig/strictest", "@tsconfig/node20"],
   "include": ["*.ts"],
   "compilerOptions": {
     "outDir": "dist",

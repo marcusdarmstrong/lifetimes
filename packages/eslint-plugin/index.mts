@@ -1,4 +1,4 @@
-import { name, version } from "./package.json";
+import pkg from "./package.json" with { type: "json" };
 import moduleScopeAllowlist from "./module-scope-allowlist.mts";
 import moduleScopeRequired from "./module-scope-required.mts";
 
@@ -19,8 +19,8 @@ const reactModuleScopeExports = [
 
 module.exports = {
   meta: {
-    name,
-    version,
+    name: pkg.name,
+    version: pkg.version,
   },
   configs: {
     recommended: {

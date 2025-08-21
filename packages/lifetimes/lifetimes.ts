@@ -131,17 +131,17 @@ export type ReadonlyDate = Readonly<
 >;
 
 type TypedArray =
-  | Int8Array
-  | Uint8Array
-  | Uint8ClampedArray
-  | Int16Array
-  | Uint16Array
-  | Int32Array
-  | Uint32Array
-  | Float32Array
-  | Float64Array
-  | BigInt64Array
-  | BigUint64Array;
+  | Int8Array<ArrayBufferLike>
+  | Uint8Array<ArrayBufferLike>
+  | Uint8ClampedArray<ArrayBufferLike>
+  | Int16Array<ArrayBufferLike>
+  | Uint16Array<ArrayBufferLike>
+  | Int32Array<ArrayBufferLike>
+  | Uint32Array<ArrayBufferLike>
+  | Float32Array<ArrayBufferLike>
+  | Float64Array<ArrayBufferLike>
+  | BigInt64Array<ArrayBufferLike>
+  | BigUint64Array<ArrayBufferLike>;
 
 export type Immutable<T> = T extends (...args: infer Ks) => infer V
   ? (...args: Ks) => V
