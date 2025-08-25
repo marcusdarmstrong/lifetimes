@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.0.0] - 2025-08-21
+
+- MAJOR: Bump typescript/node ecosystem dependencies
+- PATCH: Fix handling of new TypedArray types for arbitrary @types/node versions
+
+## [2.6.0] - 2025-08-21
+
+- PATCH: Reject `readOnly<TypedArray>` at initialization/type-check time, vs. runtime failure
+- MINOR: Improve ergonomics of RequestLocal for cases where its values are checked outside of request scope
+
+## [2.5.0] - 2024-10-02
+
+- PATCH: Typescript choking on use of `readOnly<ComponentType>(...)`
+- MINOR: Adds ESLint detection of mutable RegExp literals in module scope
+- MINOR: Adds runtime detection of mutable RegExp literals provided to readOnly
+- PATCH: Fixes Map.prototype.size and Set.prototype.size behavior
+
+
 ## [2.4.0] - 2024-06-06
 
 - MINOR: Add support const inference on values passed to `readOnly`

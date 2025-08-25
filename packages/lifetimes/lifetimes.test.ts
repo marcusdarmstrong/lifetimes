@@ -172,6 +172,14 @@ test("readOnly", async (t) => {
     readOnly<typeof Component>(Component);
   });
 
+  await t.test("throws on TypedArrays", () => {
+    assert.throws(() => {
+      const f = readOnly(new Uint8Array([1, 2]));
+      // @ts-expect-error: `f` has type `never`.
+      f[0] = 5;
+    }, "Uint8Array is not valid input");
+  });
+
   await t.test("ignores react ComponentTypes", () => {
     // Purely a typescript assertion.
     function Component() {
@@ -267,6 +275,10 @@ test("requestLocal", () => {
   const counter = requestLocal(() => ({ current: 0 }));
 
   assert.throws(() => counter.get(), "cannot be accessed outside of a request");
+  assert(
+    counter.inspect() === undefined,
+    "is inspectable outside of a request",
+  );
 
   runInRequestScope(() => {
     assert(counter.get().current === 0, "initialized via provided constructor");
@@ -281,6 +293,13 @@ test("requestLocal", () => {
     );
     counter.get().current++;
     assert(counter.get().current === 1, "is modified per request scope");
+  });
+
+  runInRequestScope(() => {
+    assert(
+      counter.inspect()?.current === 0,
+      "can be accessed by inspect in a request scope",
+    );
   });
 });
 

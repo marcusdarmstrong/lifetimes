@@ -130,6 +130,19 @@ export type ReadonlyDate = Readonly<
   >
 >;
 
+type TypedArray =
+  | Int8Array<ArrayBufferLike>
+  | Uint8Array<ArrayBufferLike>
+  | Uint8ClampedArray<ArrayBufferLike>
+  | Int16Array<ArrayBufferLike>
+  | Uint16Array<ArrayBufferLike>
+  | Int32Array<ArrayBufferLike>
+  | Uint32Array<ArrayBufferLike>
+  | Float32Array<ArrayBufferLike>
+  | Float64Array<ArrayBufferLike>
+  | BigInt64Array<ArrayBufferLike>
+  | BigUint64Array<ArrayBufferLike>;
+
 export type Immutable<T> = T extends (...args: infer Ks) => infer V
   ? (...args: Ks) => V
   : T extends Date
@@ -144,9 +157,11 @@ export type Immutable<T> = T extends (...args: infer Ks) => infer V
             ? T
             : T extends ComponentType<unknown>
               ? T
-              : {
-                  readonly [K in keyof T]: Immutable<T[K]>;
-                };
+              : T extends TypedArray
+                ? never
+                : {
+                    readonly [K in keyof T]: Immutable<T[K]>;
+                  };
 
 function isCallable<T>(
   value: ReadOnlyInitializer<T>,
@@ -198,7 +213,16 @@ const REQUEST_SCOPE = createScope();
  * requests.
  */
 export type RequestLocal<T> = {
+  /**
+   * Get the current request-local value of this container, throwing if we are
+   * outside of a request context.
+   */
   get(): T;
+  /**
+   * Get the current request-local value of this container, yielding undefined
+   * if we are outside of a request context.
+   */
+  inspect(): T | undefined;
 };
 
 /**
@@ -219,6 +243,16 @@ export function requestLocal<T>(initializer: () => T): RequestLocal<T> {
         scope.set(identity, initializer());
       }
       return scope.get(identity) as T;
+    },
+    inspect() {
+      const scope = REQUEST_SCOPE.getStore();
+      if (scope !== undefined) {
+        if (!scope.has(identity)) {
+          scope.set(identity, initializer());
+        }
+        return scope.get(identity) as T;
+      }
+      return undefined;
     },
   };
 }

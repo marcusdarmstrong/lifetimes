@@ -35,7 +35,9 @@ function getExportName(
     | TSESTree.VariableDeclarator,
 ) {
   if (node.type === "ImportSpecifier") {
-    return node.imported.name;
+    return node.imported.type === "Identifier"
+      ? node.imported.name
+      : node.imported.value;
   }
   if (node.type === "ImportDefaultSpecifier") {
     return "default";
