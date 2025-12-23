@@ -1,0 +1,12 @@
+import { defineConfig } from "eslint/config";
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import prettier from 'eslint-plugin-prettier/recommended';
+import lifetimes from '@lifetimes/eslint-plugin';
+
+export default defineConfig(
+  eslint.configs.recommended,
+  tseslint.configs.recommended,
+  prettier,
+  lifetimes.configs.recommended,
+);

@@ -1,6 +1,6 @@
 import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { ESLintUtils } from "@typescript-eslint/utils";
-import { findModuleScopeSymbolDefinition } from "./scope-exploration.mts";
+import { findModuleScopeSymbolDefinition } from "./scope-exploration.ts";
 
 const MESSAGES = {
   mustBeCalledInModuleScope:
@@ -36,8 +36,8 @@ export default ESLintUtils.RuleCreator.withoutDocs({
     const { requiredModuleScopeCallables = {} } = options[0];
     return {
       CallExpression: (node: TSESTree.CallExpression) => {
-        if (context.getScope().type !== "module") {
-          let moduleScope = context.getScope();
+        if (context.getSourceCode().getScope(node).type !== "module") {
+          let moduleScope = context.getSourceCode().getScope(node);
           while (moduleScope.type !== "module" && moduleScope.upper !== null) {
             moduleScope = moduleScope.upper;
           }
