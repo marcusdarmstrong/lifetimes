@@ -6,7 +6,7 @@ import { swc } from '@rollup/plugin-swc';
 function plugins() {
   return [
     swc({
-      include: ["*.mts"],
+      include: ["*.ts"],
       swc: {
         jsc: {
           parser: { syntax: 'typescript' },
@@ -14,7 +14,7 @@ function plugins() {
       }
     }),
     nodeResolve({
-      extensions: ['.mts', '.json'],
+      extensions: ['.ts', '.json'],
       exportConditions: ["node"],
     }),
     json({ preferConst: true }),
@@ -22,24 +22,23 @@ function plugins() {
       fix: true,
       throwOnError: true,
       throwOnWarning: true,
-      include: '*.mts',
+      include: '*.ts',
     }),
   ];
 }
 
 export default [{
-  input: "index.mts",
+  input: "index.ts",
   output: {
-    format: "commonjs",
     file: `dist/index.js`,
     sourcemap: true,
   },
   plugins: plugins(),
   external: ["@typescript-eslint/utils"],
 }, {
-  input: "index.test.mts",
+  input: "index.test.ts",
   output: {
-    file: `dist/index.test.mjs`,
+    file: `dist/index.test.js`,
     sourcemap: true,
   },
   plugins: plugins(),

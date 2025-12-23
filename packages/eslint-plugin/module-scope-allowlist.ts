@@ -1,6 +1,6 @@
 import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { ESLintUtils } from "@typescript-eslint/utils";
-import { findModuleScopeSymbolDefinition } from "./scope-exploration.mts";
+import { findModuleScopeSymbolDefinition } from "./scope-exploration.ts";
 
 const RECOMMENDATION =
   "Expressions should be wrapped with a `lifetimes` designation such as `readOnly` or another allowed wrapper.";
@@ -54,9 +54,12 @@ function callableHook(
   globalMessageId: MessageIds,
   generalMessageId: MessageIds,
 ) {
-  if (context.getScope().type === "module") {
+  if (context.getSourceCode().getScope(node).type === "module") {
     const { callableName, scopeVariable, definition } =
-      findModuleScopeSymbolDefinition(context.getScope(), node);
+      findModuleScopeSymbolDefinition(
+        context.getSourceCode().getScope(node),
+        node,
+      );
 
     if (!scopeVariable) {
       // We'll pretend unknown variables are globals for the sake of allowlisting.
@@ -178,7 +181,7 @@ export default ESLintUtils.RuleCreator.withoutDocs({
       ObjectExpression(node: TSESTree.ObjectExpression) {
         if (
           !allowMutableDeclarations &&
-          context.getScope().type === "module" &&
+          context.getSourceCode().getScope(node).type === "module" &&
           !isInlineArgument(node)
         ) {
           context.report({
@@ -190,7 +193,7 @@ export default ESLintUtils.RuleCreator.withoutDocs({
       ArrayExpression(node: TSESTree.ArrayExpression) {
         if (
           !allowMutableDeclarations &&
-          context.getScope().type === "module" &&
+          context.getSourceCode().getScope(node).type === "module" &&
           !isInlineArgument(node)
         ) {
           context.report({
@@ -203,7 +206,7 @@ export default ESLintUtils.RuleCreator.withoutDocs({
         if (
           !allowMutableDeclarations &&
           node.kind != "const" &&
-          context.getScope().type === "module"
+          context.getSourceCode().getScope(node).type === "module"
         ) {
           context.report({
             node,
@@ -213,7 +216,7 @@ export default ESLintUtils.RuleCreator.withoutDocs({
       },
       Literal(node: TSESTree.Literal) {
         if (
-          context.getScope().type === "module" &&
+          context.getSourceCode().getScope(node).type === "module" &&
           "regex" in node &&
           (node.regex.flags.includes("y") || node.regex.flags.includes("g"))
         ) {

@@ -1,6 +1,6 @@
 import { RuleTester } from "@typescript-eslint/rule-tester";
-import moduleScopeAllowlist from "./module-scope-allowlist.mts";
-import moduleScopeRequired from "./module-scope-required.mts";
+import moduleScopeAllowlist from "./module-scope-allowlist.ts";
+import moduleScopeRequired from "./module-scope-required.ts";
 import { after, describe, it } from "node:test";
 
 RuleTester.afterAll = after;

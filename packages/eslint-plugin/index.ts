@@ -1,6 +1,6 @@
 import pkg from "./package.json" with { type: "json" };
-import moduleScopeAllowlist from "./module-scope-allowlist.mts";
-import moduleScopeRequired from "./module-scope-required.mts";
+import moduleScopeAllowlist from "./module-scope-allowlist.ts";
+import moduleScopeRequired from "./module-scope-required.ts";
 
 const lifetimesModuleScopeExports = [
   "readOnly",
@@ -17,14 +17,24 @@ const reactModuleScopeExports = [
   "forwardRef",
 ];
 
-module.exports = {
+const plugin = {
   meta: {
     name: pkg.name,
     version: pkg.version,
   },
+  rules: {
+    "module-scope-allowlist": moduleScopeAllowlist,
+    "module-scope-required": moduleScopeRequired,
+  },
+};
+
+export default {
+  plugin,
   configs: {
     recommended: {
-      plugins: ["@lifetimes"],
+      plugins: {
+        "@lifetimes": plugin,
+      },
       rules: {
         "@lifetimes/module-scope-allowlist": [
           2,
@@ -46,7 +56,9 @@ module.exports = {
       },
     },
     react: {
-      plugins: ["@lifetimes"],
+      plugins: {
+        "@lifetimes": plugin,
+      },
       rules: {
         "@lifetimes/module-scope-allowlist": [
           2,
@@ -68,9 +80,5 @@ module.exports = {
         ],
       },
     },
-  },
-  rules: {
-    "module-scope-allowlist": moduleScopeAllowlist,
-    "module-scope-required": moduleScopeRequired,
   },
 };
