@@ -153,15 +153,28 @@ export type Immutable<T> = T extends (...args: infer Ks) => infer V
         ? ReadonlySet<Immutable<S>>
         : T extends Map<infer K, infer V>
           ? ReadonlyMap<Immutable<K>, Immutable<V>>
-          : T extends ReactElement<unknown>
-            ? T
-            : T extends ComponentType<unknown>
-              ? T
-              : T extends TypedArray
-                ? never
-                : {
-                    readonly [K in keyof T]: Immutable<T[K]>;
-                  };
+          : T extends ReadonlyMap<infer K, infer V>
+            ? ReadonlyMap<Immutable<K>, Immutable<V>>
+            : T extends ReadonlySet<infer S>
+              ? ReadonlySet<Immutable<S>>
+              : T extends ReactElement<unknown>
+                ? T
+                : T extends ComponentType<unknown>
+                  ? T
+                  : T extends TypedArray
+                    ? never
+                    : T extends
+                          | string
+                          | number
+                          | boolean
+                          | bigint
+                          | symbol
+                          | null
+                          | undefined
+                      ? T
+                      : {
+                          readonly [K in keyof T]: Immutable<T[K]>;
+                        };
 
 function isCallable<T>(
   value: ReadOnlyInitializer<T>,
